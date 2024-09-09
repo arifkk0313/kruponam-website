@@ -37,7 +37,7 @@ const Main = () => {
         }
 
         try {
-            const response = await fetch('https://arrif-api.moshimoshi.cloud//api/v2/kruponam/payment-request', {
+            const response = await fetch('https://arrif-api.moshimoshi.cloud/api/v2/kruponam/payment-request', {
                 method: 'POST',
                 body: formData,
             });
@@ -48,8 +48,6 @@ const Main = () => {
                 setDepartment('');
                 setYear('');
                 setProofImage(null);
-                setShowTicket(true); // Show the modal to view ticket
-
                 // Display success toast message
                 toast.success('Payment request submitted successfully!');
             } else if (response.status === 405) {
@@ -72,7 +70,7 @@ const Main = () => {
     const handleMobileNumberSubmit = async () => {
         setShowMobileInput(false); // Hide the mobile input modal
         try {
-            const response = await fetch(`https://arrif-api.moshimoshi.cloud//api/v2/kruponam/ticket?mobile=${mobileNumber}`);
+            const response = await fetch(`https://arrif-api.moshimoshi.cloud/api/v2/kruponam/ticket?mobile=${mobileNumber}`);
             if (response.ok) {
                 const data = await response.json();
                 setTicketData(data?.ticket);
