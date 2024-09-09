@@ -117,7 +117,7 @@ const Main = () => {
     };
 
     const containerStyle = {
-        margin: '20px auto',
+        margin: '70px auto',
         padding: '20px',
         backgroundColor: '#121212',
         color: '#ffffff',
