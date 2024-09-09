@@ -95,7 +95,6 @@ const Main = () => {
     };
 
     const containerStyle = {
-        width: '400px',
         margin: '20px auto',
         padding: '20px',
         backgroundColor: '#121212',
@@ -200,7 +199,7 @@ const Main = () => {
             <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
                 <button
                     onClick={() => setShowMobileInput(true)} // Show mobile input modal
-                    style={{ ...buttonStyle, marginBottom: '10px',marginRight:'10px' }}
+                    style={{ ...buttonStyle, marginBottom: '10px', marginRight: '10px' }}
                 >
                     View Ticket
                 </button>
@@ -262,16 +261,19 @@ const Main = () => {
                     </div>
                     <div>
                         <label htmlFor="year" style={labelStyle}>Year</label>
-                        <input
-                            type="text"
+                        <select
                             id="year"
                             value={year}
                             onChange={(e) => setYear(e.target.value)}
                             required
                             style={inputStyle}
-                            onFocus={(e) => e.target.style.transform = 'scale(1.05)'}
-                            onBlur={(e) => e.target.style.transform = 'scale(1)'}
-                        />
+                        >
+                            <option value="">Select Year</option>
+                            <option value="First Year">First Year</option>
+                            <option value="Second Year">Second Year</option>
+                            <option value="Third Year">Third Year</option>
+                            {/* Add more years as needed */}
+                        </select>
                     </div>
                     <div>
                         <label htmlFor="proof" style={labelStyle}>Proof Image</label>
@@ -332,7 +334,7 @@ const Main = () => {
                 onRequestClose={() => setShowBankDetails(false)}
                 style={modalStyle}
             >
-                <img src={qrImage} alt="QR Code" style={{ width: '100%',height:'500px' }} />
+                <img src={qrImage} alt="QR Code" style={{ width: '100%', height: '500px' }} />
                 <button onClick={() => setShowBankDetails(false)} style={buttonStyle2}>Close</button>
             </Modal>
 
