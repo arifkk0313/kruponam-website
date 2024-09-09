@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import html2canvas from 'html2canvas';
 
 import qrImage from '../assets/qr-image.jpeg'; // Adjust the path based on where you place the image
-import kruponam from '../assets/kr.jpeg'; // Adjust the path based on where you place the image
+import kruponam from '../assets/kr.png'; // Adjust the path based on where you place the image
 
 // Ensure the root element for the modal is defined
 Modal.setAppElement('#root');
@@ -15,6 +15,7 @@ const Main = () => {
     const [phone, setPhone] = useState('');
     const [transactionId, setTransactionId] = useState('');
     const [password, setPassword] = useState('');
+    const [termsAccepted, setTermsAccepted] = useState(false); // State for terms and conditions
     const [confirmPassword, setConfirmPassword] = useState(''); // State for confirm password
     const [department, setDepartment] = useState('');
     const [showPassword, setShowPassword] = useState(false); // State for showing/hiding password
@@ -27,6 +28,7 @@ const Main = () => {
     const [ticketData, setTicketData] = useState(null);
     const [showMobileInput, setShowMobileInput] = useState(false); // New state to handle mobile input
     const [showBankDetails, setShowBankDetails] = useState(false); // New state for bank details modal
+    const [showTermsModal, setShowTermsModal] = useState(false); // State for showing Terms and Conditions modal
 
     const FIXED_QUANTITY = 1;
 
@@ -51,7 +53,7 @@ const Main = () => {
             setError('Department is required.');
             return;
         }
-        if (!year.trim() ) {
+        if (!year.trim()) {
             setError('A valid year is required.');
             return;
         }
@@ -59,11 +61,18 @@ const Main = () => {
             setError('Password is required.');
             return;
         }
+        if (!proofImage) {
+            setError('proof is required.');
+            return;
+        }
         if (password !== confirmPassword) {
             setError('Passwords do not match.');
             return;
         }
-
+        if (!termsAccepted) {
+            setError('You must agree to the terms and conditions.');
+            return;
+        }
         // Prepare the form data
         const formData = new FormData();
         formData.append('name', name);
@@ -91,6 +100,7 @@ const Main = () => {
                 setTransactionId('');
                 setYear('');
                 setPassword('');
+                setTermsAccepted(false);
                 setProofImage(null);
                 // Display success toast message
                 toast.success('Payment request submitted successfully!');
@@ -157,22 +167,20 @@ const Main = () => {
             ticketContainer.style.fontFamily = 'Arial, sans-serif';
 
             ticketContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center;">
-          <img src="${kruponam}" alt="Event Image" style="width: 100%; height: 300px; object-fit: cover; border-radius: 5px; margin-bottom: 10px;" />
-          <div style="width: 100%; text-align: left;">
-            <div style="font-size: 14px; margin-bottom: 5px;">Name: ${ticketData.name}</div>
-            <div style="font-size: 14px; margin-bottom: 10px;">Phone: ${ticketData.phone}</div>
-            <div style="font-size: 12px; color: #666; margin-bottom: 15px;">Tap for support, details & more actions</div>
-          </div>
-          <div style="display: flex; justify-content: center; width: 100%; margin-bottom: 15px;">
-            <img src="${ticketData.qrImage}" alt="QR Code" style="width: 90px; height: 100px;" />
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 14px; width: 100%;">
-            <div>BOOKING ID: ${ticketData.bookingId}</div>
-            <div>1 Ticket(s)</div>
+        <div style="position: relative;">
+          <img src="${kruponam}" alt="Event Image" style="width: 100%; height: 500px; object-fit: cover;" />
+          <div style="position: absolute; bottom: 20px; right: 15px; display: flex; align-items: flex-end; background: white; padding: 5px; border-radius: 5px; ">
+            <div style="margin-right: 60px; text-align: left;">
+              <div style="font-size: 12px; font-weight: bold; margin-bottom: 3px;">BOOKING ID: ${ticketData.bookingId}</div>
+              <div style="font-size: 12px;">Name: ${ticketData.name}</div>
+              <div style="font-size: 12px;">Phone: ${ticketData.phone}</div>
+            </div>
+            <img src="${ticketData.qrImage}" alt="QR Code" style="width: 95px; height: 85px;" />
           </div>
         </div>
       `;
+
+
 
             // Append to body and capture
             document.body.appendChild(ticketContainer);
@@ -222,7 +230,7 @@ const Main = () => {
         backgroundColor: '#282828',
         color: '#ffffff',
         transition: 'transform 0.2s ease-in-out',
-    };    
+    };
 
     const inputStyle2 = {
         width: '90%',
@@ -410,7 +418,7 @@ const Main = () => {
                             <option value="Bba Aviation">Bba Aviation</option>
                             <option value="Bca">Bca</option>
                             <option value="Bcom">Bcom</option>
-                            <option value="Others">Others</option>                            
+                            <option value="Others">Others</option>
                         </select>
                     </div>
                     <div>
@@ -425,7 +433,7 @@ const Main = () => {
                             <option value="">Select Year</option>
                             <option value="First Year">First Year</option>
                             <option value="Second Year">Second Year</option>
-                            <option value="Third Year">Third Year</option>                            
+                            <option value="Third Year">Third Year</option>
                         </select>
                     </div>
                     <div>
@@ -437,6 +445,15 @@ const Main = () => {
                             style={inputStyle2}
                         />
                     </div>
+                    <label style={{ color: '#ffffff' }}>
+                        <input
+                            type="checkbox"
+                            checked={termsAccepted}
+                            onChange={() => setTermsAccepted(!termsAccepted)}
+                            style={{ marginRight: '10px' }}
+                        />
+                        I agree to the <a href="#terms" onClick={() => setShowTermsModal(true)} style={{ color: '#1DB954' }}>Terms and Conditions</a>
+                    </label>
                     <button type="submit" style={buttonStyle}>Submit</button>
                 </form>
 
@@ -504,9 +521,40 @@ const Main = () => {
                 style={modalStyle}
             >
                 <img src={qrImage} alt="QR Code" style={{ width: '100%', height: '500px' }} />
+                <p style={{textAlign:'center'}}>OR</p>
+                <p style={{ textAlign: 'center',fontWeight:'bold' }}>Gpay : 8590951584</p>
                 <button onClick={() => setShowBankDetails(false)} style={buttonStyle2}>Close</button>
             </Modal>
-
+            <Modal
+                isOpen={showTermsModal}
+                onRequestClose={() => setShowTermsModal(false)}
+                contentLabel="Terms and Conditions"
+                style={{
+                    overlay: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    },
+                    content: {
+                        backgroundColor: '#121212',
+                        color: '#ffffff',
+                        padding: '20px',
+                        borderRadius: '8px',
+                        maxWidth: '600px',
+                        margin: 'auto',
+                    },
+                }}
+            >
+                <h2>Terms and Conditions</h2>
+                <ol style={{ lineHeight: '1.6' }}>
+                    <li>College ID: Only students with a valid college ID will be permitted to enter the event. (First-year students can show their official group chat as proof of enrollment.)</li>
+                    <li>Attendees must agree to follow the rules and regulations set by the coordinators for the Onam celebration.</li>
+                    <li>No Refunds: Tickets are non-refundable and non-transferable.</li>
+                    <li>The coordinators are not responsible for attendees' personal belongings.</li>
+                    <li>Attendees found to be under the influence of alcohol or any other intoxicating substance will be restricted from entering the function.</li>
+                    <li>No Re-entry: Once attendees exit the function, they will not be allowed to re-enter.</li>
+                    <li>Eligibility: This program is exclusively for Krupanidhi Degree Students.</li>
+                </ol>
+                <button onClick={() => setShowTermsModal(false)} style={buttonStyle2}>Close</button>
+            </Modal>
         </>
     );
 };
