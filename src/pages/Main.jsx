@@ -8,7 +8,6 @@ Modal.setAppElement('#root');
 
 const Main = () => {
     const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [department, setDepartment] = useState('');
     const [year, setYear] = useState('');
@@ -17,6 +16,7 @@ const Main = () => {
     const [showTicket, setShowTicket] = useState(false);
     const [mobileNumber, setMobileNumber] = useState('');
     const [ticketData, setTicketData] = useState(null);
+    const [showMobileInput, setShowMobileInput] = useState(false); // New state to handle mobile input
 
     const FIXED_QUANTITY = 1;
 
@@ -26,7 +26,6 @@ const Main = () => {
 
         const formData = new FormData();
         formData.append('name', name);
-        formData.append('email', email);
         formData.append('phone', phone);
         formData.append('department', department);
         formData.append('year', year);
@@ -43,7 +42,6 @@ const Main = () => {
 
             if (response.ok) {
                 setName('');
-                setEmail('');
                 setPhone('');
                 setDepartment('');
                 setYear('');
@@ -69,12 +67,14 @@ const Main = () => {
         }
     };
 
-    const handleViewTicket = async () => {
+    const handleMobileNumberSubmit = async () => {
+        setShowMobileInput(false); // Hide the mobile input modal
         try {
             const response = await fetch(`https://arrif-api.moshimoshi.cloud//api/v2/kruponam/ticket?mobile=${mobileNumber}`);
             if (response.ok) {
                 const data = await response.json();
                 setTicketData(data?.ticket);
+                setShowTicket(true); // Show ticket modal with data
             } else {
                 toast.error('Failed to fetch ticket details. Please try again.');
             }
@@ -127,6 +127,16 @@ const Main = () => {
         color: '#ffffff',
         transition: 'transform 0.2s ease-in-out',
     };
+    const inputStyle2 = {
+        width: '90%',
+        padding: '10px',
+        borderRadius: '4px',
+        border: 'none',
+        marginTop: '10px',
+        backgroundColor: '#282828',
+        color: '#ffffff',
+        transition: 'transform 0.2s ease-in-out',
+    };
 
     const labelStyle = {
         display: 'block',
@@ -142,18 +152,17 @@ const Main = () => {
         borderRadius: '25px',
         cursor: 'pointer',
         fontWeight: 'bold',
-        fontSize: '16px',
+        fontSize: '16px',        
         transition: 'background-color 0.3s ease, transform 0.3s ease',
     };
-
 
     const buttonStyle2 = {
         padding: '12px',
         backgroundColor: '#1DB954',
         color: 'white',
         border: 'none',
-        marginTop: '10px',
-        marginRight: '10px',
+        marginTop: '10px',        
+        marginRight: '10px',        
         marginBottom: '10px',
         borderRadius: '25px',
         cursor: 'pointer',
@@ -171,7 +180,7 @@ const Main = () => {
     const modalStyle = {
         content: {
             top: '50%',
-            left: '50%',
+            left: '50%',            
             right: 'auto',
             bottom: 'auto',
             transform: 'translate(-50%, -50%)',
@@ -186,7 +195,7 @@ const Main = () => {
     return (
         <>
             <button
-                onClick={() => setShowTicket(true)}
+                onClick={() => setShowMobileInput(true)} // Show mobile input modal
                 style={{ ...buttonStyle, position: 'absolute', top: '20px', right: '20px' }}
             >
                 View Ticket
@@ -203,19 +212,6 @@ const Main = () => {
                             id="name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            required
-                            style={inputStyle}
-                            onFocus={(e) => e.target.style.transform = 'scale(1.05)'}
-                            onBlur={(e) => e.target.style.transform = 'scale(1)'}
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="email" style={labelStyle}>Email</label>
-                        <input
-                            type="email"
-                            id="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
                             required
                             style={inputStyle}
                             onFocus={(e) => e.target.style.transform = 'scale(1.05)'}
@@ -273,44 +269,45 @@ const Main = () => {
                         <input
                             type="file"
                             id="proof"
-                            accept="image/*"
                             onChange={handleImageChange}
+                            required
                             style={inputStyle}
                         />
                     </div>
                     <button type="submit" style={buttonStyle}>Submit</button>
-                    {error && <p style={{ color: 'red' }}>{error}</p>}
                 </form>
-
-                <div style={termsStyle}>
-                    <p>By submitting this form, you agree to our Terms & Conditions.</p>
-                </div>
+                <p style={termsStyle}>
+                    By submitting, you agree to our terms and conditions.
+                </p>
             </div>
 
-            <Modal
-                isOpen={showTicket}
-                onRequestClose={() => setShowTicket(false)}
-                style={modalStyle}
-            >
-                <h2>Ticket Details</h2>
-                {ticketData ? (
-                    <>
-                        <p><strong>Name:</strong> {ticketData.name}</p>
-                        <p><strong>Booking Id:</strong> {ticketData.bookingId}</p>
-                        <img src={ticketData.qrImage} style={{ display: 'block' }} alt="QR Code" />
-                        <button onClick={handleDownload} style={buttonStyle2}>
-                            Download QR Code
-                        </button>
-                    </>
-                ) : (
-                    <p>Loading...</p>
-                )}
-                <button onClick={() => setShowTicket(false)} style={{ ...buttonStyle, marginTop: '10px' }}>
-                    Close
-                </button>
+            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
+
+            {/* Modal for mobile number input */}
+            <Modal isOpen={showMobileInput} onRequestClose={() => setShowMobileInput(false)} style={modalStyle}>
+                <h2>Enter Your Mobile Number</h2>
+                <input
+                    type="text"
+                    value={mobileNumber}
+                    onChange={(e) => setMobileNumber(e.target.value)}
+                    placeholder="Mobile Number"
+                    style={{ ...inputStyle2, marginBottom: '10px', }}
+                />
+                <button onClick={handleMobileNumberSubmit} style={buttonStyle2}>Submit</button>
             </Modal>
 
-            <ToastContainer />
+            {/* Modal for showing ticket details */}
+            <Modal isOpen={showTicket} onRequestClose={() => setShowTicket(false)} style={modalStyle}>
+                <h2>Your Ticket Details</h2>
+                {ticketData ? (
+                    <div>
+                        <img src={ticketData.qrImage} alt="QR Code" style={{ width: '100%', height: 'auto' }} />
+                        <button onClick={handleDownload} style={buttonStyle}>Download QR Code</button>
+                    </div>
+                ) : (
+                    <p>No ticket data available.</p>
+                )}
+            </Modal>
         </>
     );
 };
