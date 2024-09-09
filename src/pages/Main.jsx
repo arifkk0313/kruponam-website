@@ -127,7 +127,7 @@ const Main = () => {
         backgroundColor: '#282828',
         color: '#ffffff',
         transition: 'transform 0.2s ease-in-out',
-    };
+    };    
 
     const inputStyle2 = {
         width: '90%',
@@ -191,6 +191,20 @@ const Main = () => {
             padding: '20px',
             borderRadius: '8px',
             width: '400px', // Adjust width as needed
+        },
+    };
+    const modalStyle2 = {
+        content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: '#121212',
+            color: '#ffffff',
+            padding: '20px',
+            borderRadius: '8px',
+            width: '300px', // Adjust width as needed
         },
     };
 
@@ -314,7 +328,7 @@ const Main = () => {
             <Modal
                 isOpen={showMobileInput}
                 onRequestClose={() => setShowMobileInput(false)}
-                style={modalStyle}
+                style={modalStyle2}
             >
                 <h2>Enter Mobile Number</h2>
                 <input
@@ -322,10 +336,16 @@ const Main = () => {
                     value={mobileNumber}
                     onChange={(e) => setMobileNumber(e.target.value)}
                     placeholder="Enter mobile number"
-                    style={inputStyle}
+                    style={inputStyle2}
                 />
                 <button onClick={handleMobileNumberSubmit} style={buttonStyle}>Submit</button>
-                <button onClick={() => setShowMobileInput(false)} style={buttonStyle2}>Cancel</button>
+                <button
+                    onClick={() => setShowMobileInput(false)}
+                    style={{ ...buttonStyle2, marginLeft: '10px' }}
+                >
+                    Cancel
+                </button>
+
             </Modal>
 
             {/* Bank Details Modal */}
