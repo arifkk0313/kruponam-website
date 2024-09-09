@@ -90,10 +90,10 @@ const Main = () => {
                 const data = await response.json();
                 setTicketData(data?.ticket);
                 setShowTicket(true); // Show ticket modal with data
-            } else if (response.status === 303) {
+            } else if (response.status === 302) {
                 setMobileNumber('');
                 setPasswordForModal('');
-                toast.error('Ticket is not available');
+                toast.error('Password is mismatch');
             } else {
                 setMobileNumber('');
                 setPasswordForModal('');
@@ -320,12 +320,11 @@ const Main = () => {
                             style={inputStyle}
                         >
                             <option value="">Select Department</option>
-                            <option value="Computer Science">Bba</option>
-                            <option value="Mechanical">Bba Aviation</option>
-                            <option value="Electrical">Bca</option>
-                            <option value="Civil">Bcom</option>
-                            <option value="Electronics">Others</option>
-                            {/* Add more departments as needed */}
+                            <option value="Bba">Bba</option>
+                            <option value="Bba Aviation">Bba Aviation</option>
+                            <option value="Bca">Bca</option>
+                            <option value="Bcom">Bcom</option>
+                            <option value="Others">Others</option>                            
                         </select>
                     </div>
                     <div>
