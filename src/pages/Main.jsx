@@ -2,7 +2,10 @@ import { useState } from "react";
 import Modal from "react-modal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import html2canvas from 'html2canvas';
+
 import qrImage from '../assets/qr-image.jpeg'; // Adjust the path based on where you place the image
+import kruponam from '../assets/kr.jpeg'; // Adjust the path based on where you place the image
 
 // Ensure the root element for the modal is defined
 Modal.setAppElement('#root');
@@ -137,15 +140,55 @@ const Main = () => {
     };
 
 
-    const handleDownload = () => {
-        // Assuming ticketData contains the QR code image URL
-        const qrImage = ticketData?.qrImage;
-        const link = document.createElement('a');
-        link.href = qrImage;
-        link.download = 'ticket-qr-code.png';
-        link.click();
-    };
+    const handleDownload = async () => {
+        // Ensure ticketData is available
+        if (!ticketData) {
+            toast.error('Ticket data is not available.');
+            return;
+        }
 
+        try {
+            // Create a container to capture
+            const ticketContainer = document.createElement('div');
+            ticketContainer.style.width = '300px';
+            ticketContainer.style.padding = '10px';
+            ticketContainer.style.backgroundColor = 'white';
+            ticketContainer.style.color = 'black';
+            ticketContainer.style.fontFamily = 'Arial, sans-serif';
+
+            ticketContainer.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <img src="${kruponam}" alt="Event Image" style="width: 100%; height: 300px; object-fit: cover; border-radius: 5px; margin-bottom: 10px;" />
+          <div style="width: 100%; text-align: left;">
+            <div style="font-size: 14px; margin-bottom: 5px;">Name: ${ticketData.name}</div>
+            <div style="font-size: 14px; margin-bottom: 10px;">Phone: ${ticketData.phone}</div>
+            <div style="font-size: 12px; color: #666; margin-bottom: 15px;">Tap for support, details & more actions</div>
+          </div>
+          <div style="display: flex; justify-content: center; width: 100%; margin-bottom: 15px;">
+            <img src="${ticketData.qrImage}" alt="QR Code" style="width: 90px; height: 100px;" />
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 14px; width: 100%;">
+            <div>BOOKING ID: ${ticketData.bookingId}</div>
+            <div>1 Ticket(s)</div>
+          </div>
+        </div>
+      `;
+
+            // Append to body and capture
+            document.body.appendChild(ticketContainer);
+            const canvas = await html2canvas(ticketContainer);
+            document.body.removeChild(ticketContainer);
+
+            // Convert canvas to image and trigger download
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = 'event-ticket.png';
+            link.click();
+
+        } catch (error) {
+            toast.error('An error occurred while generating the ticket.');
+        }
+    };
     const containerStyle = {
         margin: '70px auto',
         padding: '20px',
@@ -242,7 +285,7 @@ const Main = () => {
             color: '#ffffff',
             padding: '20px',
             borderRadius: '8px',
-            width: '400px', // Adjust width as needed
+            width: '350px', // Adjust width as needed
         },
     };
     const modalStyle2 = {
