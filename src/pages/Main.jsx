@@ -11,7 +11,9 @@ const Main = () => {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState(''); // State for confirm password
     const [department, setDepartment] = useState('');
+    const [showPassword, setShowPassword] = useState(false); // State for showing/hiding password
     const [year, setYear] = useState('');
     const [proofImage, setProofImage] = useState(null);
     const [error, setError] = useState('');
@@ -26,7 +28,12 @@ const Main = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
+        setError('');        
+
+        if (password !== confirmPassword) {
+            setError('Passwords do not match.');
+            return;
+        }
 
         const formData = new FormData();
         formData.append('name', name);
@@ -49,6 +56,7 @@ const Main = () => {
                 setName('');
                 setPhone('');
                 setDepartment('');
+                setConfirmPassword('');
                 setYear('');
                 setPassword('');
                 setProofImage(null);
@@ -221,7 +229,9 @@ const Main = () => {
             width: '300px', // Adjust width as needed
         },
     };
-
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
     return (
         <>
             <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
@@ -272,15 +282,33 @@ const Main = () => {
                     <div>
                         <label htmlFor="password" style={labelStyle}>Password</label>
                         <input
-                            type="text"
-                            id="password"                            
+                            type={showPassword ? "text" : "password"}
+                            id="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             style={inputStyle}
-                            onFocus={(e) => e.target.style.transform = 'scale(1.05)'}
-                            onBlur={(e) => e.target.style.transform = 'scale(1)'}
                         />
+                    </div>
+                    <div>
+                        <label htmlFor="confirmPassword" style={labelStyle}>Confirm Password</label>
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            id="confirmPassword"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                            style={inputStyle}
+                        />
+                    </div>
+                    <div>
+                        <input
+                            type="checkbox"
+                            checked={showPassword}
+                            onChange={togglePasswordVisibility}
+                            style={{ marginRight: '5px' }}
+                        />
+                        <label>Show Password</label>
                     </div>
                     <div>
                         <label htmlFor="department" style={labelStyle}>Department</label>
