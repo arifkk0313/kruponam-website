@@ -1,0 +1,318 @@
+import { useState } from "react";
+import Modal from "react-modal";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+// Ensure the root element for the modal is defined
+Modal.setAppElement('#root');
+
+const Main = () => {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [department, setDepartment] = useState('');
+    const [year, setYear] = useState('');
+    const [proofImage, setProofImage] = useState(null);
+    const [error, setError] = useState('');
+    const [showTicket, setShowTicket] = useState(false);
+    const [mobileNumber, setMobileNumber] = useState('');
+    const [ticketData, setTicketData] = useState(null);
+
+    const FIXED_QUANTITY = 1;
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('email', email);
+        formData.append('phone', phone);
+        formData.append('department', department);
+        formData.append('year', year);
+        formData.append('quantity', FIXED_QUANTITY);
+        if (proofImage) {
+            formData.append('image', proofImage);
+        }
+
+        try {
+            const response = await fetch('http://localhost:3019/api/v2/kruponam/payment-request', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                setName('');
+                setEmail('');
+                setPhone('');
+                setDepartment('');
+                setYear('');
+                setProofImage(null);
+                setShowTicket(true); // Show the modal to view ticket
+
+                // Display success toast message
+                toast.success('Payment request submitted successfully!');
+            } else if (response.status === 405) {
+                // Display specific error message for status code 405
+                toast.error('You have already requested. Please wait.');
+            } else {
+                setError('Payment request failed. Please try again.');
+            }
+        } catch (err) {
+            setError('An error occurred. Please try again later.');
+        }
+    };
+
+    const handleImageChange = (e) => {
+        if (e.target.files[0]) {
+            setProofImage(e.target.files[0]);
+        }
+    };
+
+    const handleViewTicket = async () => {
+        try {
+            const response = await fetch(`http://localhost:3019/api/v2/kruponam/ticket?mobile=${mobileNumber}`);
+            if (response.ok) {
+                const data = await response.json();
+                setTicketData(data?.ticket);
+            } else {
+                toast.error('Failed to fetch ticket details. Please try again.');
+            }
+        } catch (err) {
+            toast.error('An error occurred. Please try again later.');
+        }
+    };
+
+    const handleDownload = () => {
+        // Assuming ticketData contains the QR code image URL
+        const qrImage = ticketData?.qrImage;
+        const link = document.createElement('a');
+        link.href = qrImage;
+        link.download = 'ticket-qr-code.png';
+        link.click();
+    };
+
+    const containerStyle = {
+        width: '400px',
+        margin: '20px auto',
+        padding: '20px',
+        backgroundColor: '#121212',
+        color: '#ffffff',
+        borderRadius: '8px',
+        fontFamily: 'Arial, sans-serif',
+        animation: 'fadeIn 1s ease-in-out',
+        position: 'relative', // Add this to position the button correctly
+    };
+
+    const headingStyle = {
+        textAlign: 'center',
+        marginBottom: '20px',
+        color: '#1DB954',
+        fontSize: '24px',
+    };
+
+    const formStyle = {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '15px',
+    };
+
+    const inputStyle = {
+        width: '100%',
+        padding: '10px',
+        borderRadius: '4px',
+        border: 'none',
+        marginTop: '10px',
+        backgroundColor: '#282828',
+        color: '#ffffff',
+        transition: 'transform 0.2s ease-in-out',
+    };
+
+    const labelStyle = {
+        display: 'block',
+        marginBottom: '5px',
+        color: '#B3B3B3',
+    };
+
+    const buttonStyle = {
+        padding: '12px',
+        backgroundColor: '#1DB954',
+        color: 'white',
+        border: 'none',
+        borderRadius: '25px',
+        cursor: 'pointer',
+        fontWeight: 'bold',
+        fontSize: '16px',
+        transition: 'background-color 0.3s ease, transform 0.3s ease',
+    };
+
+
+    const buttonStyle2 = {
+        padding: '12px',
+        backgroundColor: '#1DB954',
+        color: 'white',
+        border: 'none',
+        marginTop: '10px',
+        marginRight: '10px',
+        marginBottom: '10px',
+        borderRadius: '25px',
+        cursor: 'pointer',
+        fontWeight: 'bold',
+        fontSize: '16px',
+        transition: 'background-color 0.3s ease, transform 0.3s ease',
+    };
+
+    const termsStyle = {
+        marginTop: '20px',
+        fontSize: '12px',
+        color: '#B3B3B3',
+    };
+
+    const modalStyle = {
+        content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: '#121212',
+            color: '#ffffff',
+            padding: '20px',
+            borderRadius: '8px',
+            width: '400px', // Adjust width as needed
+        },
+    };
+
+    return (
+        <>
+            <button
+                onClick={() => setShowTicket(true)}
+                style={{ ...buttonStyle, position: 'absolute', top: '20px', right: '20px' }}
+            >
+                View Ticket
+            </button>
+            <div style={containerStyle}>
+
+                <h1 style={headingStyle}>Onam Event Ticket Booking</h1>
+
+                <form onSubmit={handleSubmit} style={formStyle}>
+                    <div>
+                        <label htmlFor="name" style={labelStyle}>Full Name</label>
+                        <input
+                            type="text"
+                            id="name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            required
+                            style={inputStyle}
+                            onFocus={(e) => e.target.style.transform = 'scale(1.05)'}
+                            onBlur={(e) => e.target.style.transform = 'scale(1)'}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="email" style={labelStyle}>Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            style={inputStyle}
+                            onFocus={(e) => e.target.style.transform = 'scale(1.05)'}
+                            onBlur={(e) => e.target.style.transform = 'scale(1)'}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="phone" style={labelStyle}>Phone</label>
+                        <input
+                            type="tel"
+                            id="phone"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            required
+                            style={inputStyle}
+                            onFocus={(e) => e.target.style.transform = 'scale(1.05)'}
+                            onBlur={(e) => e.target.style.transform = 'scale(1)'}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="department" style={labelStyle}>Department</label>
+                        <select
+                            id="department"
+                            value={department}
+                            onChange={(e) => setDepartment(e.target.value)}
+                            required
+                            style={inputStyle}
+                        >
+                            <option value="">Select Department</option>
+                            <option value="Computer Science">Bba</option>
+                            <option value="Mechanical">Bba Aviation</option>
+                            <option value="Electrical">Bca</option>
+                            <option value="Civil">Bcom</option>
+                            <option value="Electronics">Others</option>
+                            {/* Add more departments as needed */}
+                        </select>
+                    </div>
+                    <div>
+                        <label htmlFor="year" style={labelStyle}>Year</label>
+                        <select
+                            id="year"
+                            value={year}
+                            onChange={(e) => setYear(e.target.value)}
+                            required
+                            style={inputStyle}
+                        >
+                            <option value="">Select Year</option>
+                            <option value="First Year">First Year</option>
+                            <option value="Second Year">Second Year</option>
+                            <option value="Third Year">Third Year</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label htmlFor="proof" style={labelStyle}>Proof of Upload</label>
+                        <input
+                            type="file"
+                            id="proof"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            style={inputStyle}
+                        />
+                    </div>
+                    <button type="submit" style={buttonStyle}>Submit</button>
+                    {error && <p style={{ color: 'red' }}>{error}</p>}
+                </form>
+
+                <div style={termsStyle}>
+                    <p>By submitting this form, you agree to our Terms & Conditions.</p>
+                </div>
+            </div>
+
+            <Modal
+                isOpen={showTicket}
+                onRequestClose={() => setShowTicket(false)}
+                style={modalStyle}
+            >
+                <h2>Ticket Details</h2>
+                {ticketData ? (
+                    <>
+                        <p><strong>Name:</strong> {ticketData.name}</p>
+                        <p><strong>Booking Id:</strong> {ticketData.bookingId}</p>
+                        <img src={ticketData.qrImage} style={{ display: 'block' }} alt="QR Code" />
+                        <button onClick={handleDownload} style={buttonStyle2}>
+                            Download QR Code
+                        </button>
+                    </>
+                ) : (
+                    <p>Loading...</p>
+                )}
+                <button onClick={() => setShowTicket(false)} style={{ ...buttonStyle, marginTop: '10px' }}>
+                    Close
+                </button>
+            </Modal>
+
+            <ToastContainer />
+        </>
+    );
+};
+
+export default Main;
