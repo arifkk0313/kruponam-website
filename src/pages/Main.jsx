@@ -10,12 +10,14 @@ Modal.setAppElement('#root');
 const Main = () => {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
+    const [password, setPassword] = useState('');
     const [department, setDepartment] = useState('');
     const [year, setYear] = useState('');
     const [proofImage, setProofImage] = useState(null);
     const [error, setError] = useState('');
     const [showTicket, setShowTicket] = useState(false);
     const [mobileNumber, setMobileNumber] = useState('');
+    const [passwordforModal, setPasswordForModal] = useState('');
     const [ticketData, setTicketData] = useState(null);
     const [showMobileInput, setShowMobileInput] = useState(false); // New state to handle mobile input
     const [showBankDetails, setShowBankDetails] = useState(false); // New state for bank details modal
@@ -30,6 +32,7 @@ const Main = () => {
         formData.append('name', name);
         formData.append('phone', phone);
         formData.append('department', department);
+        formData.append('password', password);
         formData.append('year', year);
         formData.append('quantity', FIXED_QUANTITY);
         if (proofImage) {
@@ -47,6 +50,7 @@ const Main = () => {
                 setPhone('');
                 setDepartment('');
                 setYear('');
+                setPassword('');
                 setProofImage(null);
                 // Display success toast message
                 toast.success('Payment request submitted successfully!');
@@ -68,20 +72,32 @@ const Main = () => {
     };
 
     const handleMobileNumberSubmit = async () => {
-        setShowMobileInput(false); // Hide the mobile input modal
+        // setShowMobileInput(false); // Uncomment to hide the mobile input modal
         try {
-            const response = await fetch(`https://arrif-api.moshimoshi.cloud/api/v2/kruponam/ticket?mobile=${mobileNumber}`);
+            const response = await fetch(`https://arrif-api.moshimoshi.cloud/api/v2/kruponam/ticket?mobile=${encodeURIComponent(mobileNumber)}&password=${encodeURIComponent(passwordforModal)}`);
+            console.log(response.status);
+
             if (response.ok) {
+                setShowMobileInput(false);
                 const data = await response.json();
                 setTicketData(data?.ticket);
                 setShowTicket(true); // Show ticket modal with data
+            } else if (response.status === 303) {
+                setMobileNumber('');
+                setPasswordForModal('');
+                toast.error('Ticket is not available');
             } else {
-                toast.error('Failed to fetch ticket details. Please try again.');
+                setMobileNumber('');
+                setPasswordForModal('');
+                toast.error('Ticket is not available.');
             }
         } catch (err) {
+            setMobileNumber('');
+            setPasswordForModal('');
             toast.error('An error occurred. Please try again later.');
         }
     };
+
 
     const handleDownload = () => {
         // Assuming ticketData contains the QR code image URL
@@ -254,6 +270,19 @@ const Main = () => {
                         />
                     </div>
                     <div>
+                        <label htmlFor="password" style={labelStyle}>Password</label>
+                        <input
+                            type="text"
+                            id="password"                            
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            style={inputStyle}
+                            onFocus={(e) => e.target.style.transform = 'scale(1.05)'}
+                            onBlur={(e) => e.target.style.transform = 'scale(1)'}
+                        />
+                    </div>
+                    <div>
                         <label htmlFor="department" style={labelStyle}>Department</label>
                         <select
                             id="department"
@@ -336,6 +365,14 @@ const Main = () => {
                     value={mobileNumber}
                     onChange={(e) => setMobileNumber(e.target.value)}
                     placeholder="Enter mobile number"
+                    style={inputStyle2}
+                />
+                <h2>Enter Password</h2>
+                <input
+                    type="text"
+                    value={passwordforModal}
+                    onChange={(e) => setPasswordForModal(e.target.value)}
+                    placeholder="Enter your password"
                     style={inputStyle2}
                 />
                 <button onClick={handleMobileNumberSubmit} style={buttonStyle}>Submit</button>
