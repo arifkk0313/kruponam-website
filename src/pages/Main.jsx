@@ -2,6 +2,7 @@ import { useState } from "react";
 import Modal from "react-modal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import qrImage from '../assets/qr-image.jpeg'; // Adjust the path based on where you place the image
 
 // Ensure the root element for the modal is defined
 Modal.setAppElement('#root');
@@ -17,6 +18,7 @@ const Main = () => {
     const [mobileNumber, setMobileNumber] = useState('');
     const [ticketData, setTicketData] = useState(null);
     const [showMobileInput, setShowMobileInput] = useState(false); // New state to handle mobile input
+    const [showBankDetails, setShowBankDetails] = useState(false); // New state for bank details modal
 
     const FIXED_QUANTITY = 1;
 
@@ -127,6 +129,7 @@ const Main = () => {
         color: '#ffffff',
         transition: 'transform 0.2s ease-in-out',
     };
+
     const inputStyle2 = {
         width: '90%',
         padding: '10px',
@@ -152,7 +155,7 @@ const Main = () => {
         borderRadius: '25px',
         cursor: 'pointer',
         fontWeight: 'bold',
-        fontSize: '16px',        
+        fontSize: '16px',
         transition: 'background-color 0.3s ease, transform 0.3s ease',
     };
 
@@ -161,8 +164,8 @@ const Main = () => {
         backgroundColor: '#1DB954',
         color: 'white',
         border: 'none',
-        marginTop: '10px',        
-        marginRight: '10px',        
+        marginTop: '10px',
+        marginRight: '10px',
         marginBottom: '10px',
         borderRadius: '25px',
         cursor: 'pointer',
@@ -180,7 +183,7 @@ const Main = () => {
     const modalStyle = {
         content: {
             top: '50%',
-            left: '50%',            
+            left: '50%',
             right: 'auto',
             bottom: 'auto',
             transform: 'translate(-50%, -50%)',
@@ -194,14 +197,22 @@ const Main = () => {
 
     return (
         <>
-            <button
-                onClick={() => setShowMobileInput(true)} // Show mobile input modal
-                style={{ ...buttonStyle, position: 'absolute', top: '20px', right: '20px' }}
-            >
-                View Ticket
-            </button>
-            <div style={containerStyle}>
+            <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
+                <button
+                    onClick={() => setShowMobileInput(true)} // Show mobile input modal
+                    style={{ ...buttonStyle, marginBottom: '10px',marginRight:'10px' }}
+                >
+                    View Ticket
+                </button>
+                <button
+                    onClick={() => setShowBankDetails(true)} // Show bank details modal
+                    style={buttonStyle}
+                >
+                    View Bank Details
+                </button>
+            </div>
 
+            <div style={containerStyle}>
                 <h1 style={headingStyle}>Onam Event Ticket Booking</h1>
 
                 <form onSubmit={handleSubmit} style={formStyle}>
@@ -251,63 +262,80 @@ const Main = () => {
                     </div>
                     <div>
                         <label htmlFor="year" style={labelStyle}>Year</label>
-                        <select
+                        <input
+                            type="text"
                             id="year"
                             value={year}
                             onChange={(e) => setYear(e.target.value)}
                             required
                             style={inputStyle}
-                        >
-                            <option value="">Select Year</option>
-                            <option value="First Year">First Year</option>
-                            <option value="Second Year">Second Year</option>
-                            <option value="Third Year">Third Year</option>
-                        </select>
+                            onFocus={(e) => e.target.style.transform = 'scale(1.05)'}
+                            onBlur={(e) => e.target.style.transform = 'scale(1)'}
+                        />
                     </div>
                     <div>
-                        <label htmlFor="proof" style={labelStyle}>Proof of Upload</label>
+                        <label htmlFor="proof" style={labelStyle}>Proof Image</label>
                         <input
                             type="file"
                             id="proof"
                             onChange={handleImageChange}
-                            required
-                            style={inputStyle}
+                            style={inputStyle2}
                         />
                     </div>
                     <button type="submit" style={buttonStyle}>Submit</button>
                 </form>
-                <p style={termsStyle}>
-                    By submitting, you agree to our terms and conditions.
-                </p>
+
+                {error && <div style={{ color: 'red', marginTop: '10px' }}>{error}</div>}
             </div>
 
-            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
+            <ToastContainer />
 
-            {/* Modal for mobile number input */}
-            <Modal isOpen={showMobileInput} onRequestClose={() => setShowMobileInput(false)} style={modalStyle}>
-                <h2>Enter Your Mobile Number</h2>
+            {/* Ticket Modal */}
+            <Modal
+                isOpen={showTicket}
+                onRequestClose={() => setShowTicket(false)}
+                style={modalStyle}
+            >
+                <h2>Your Ticket</h2>
+                {ticketData && (
+                    <>
+                        <p>Ticket Number: {ticketData.ticketNumber}</p>
+                        <p>QR Code:</p>
+                        <img src={ticketData.qrImage} alt="QR Code" style={{ width: '100%' }} />
+                        <button onClick={handleDownload} style={buttonStyle2}>Download QR Code</button>
+                    </>
+                )}
+                <button onClick={() => setShowTicket(false)} style={buttonStyle2}>Close</button>
+            </Modal>
+
+            {/* Mobile Input Modal */}
+            <Modal
+                isOpen={showMobileInput}
+                onRequestClose={() => setShowMobileInput(false)}
+                style={modalStyle}
+            >
+                <h2>Enter Mobile Number</h2>
                 <input
                     type="text"
                     value={mobileNumber}
                     onChange={(e) => setMobileNumber(e.target.value)}
-                    placeholder="Mobile Number"
-                    style={{ ...inputStyle2, marginBottom: '10px', }}
+                    placeholder="Enter mobile number"
+                    style={inputStyle}
                 />
-                <button onClick={handleMobileNumberSubmit} style={buttonStyle2}>Submit</button>
+                <button onClick={handleMobileNumberSubmit} style={buttonStyle}>Submit</button>
+                <button onClick={() => setShowMobileInput(false)} style={buttonStyle2}>Cancel</button>
             </Modal>
 
-            {/* Modal for showing ticket details */}
-            <Modal isOpen={showTicket} onRequestClose={() => setShowTicket(false)} style={modalStyle}>
-                <h2>Your Ticket Details</h2>
-                {ticketData ? (
-                    <div>
-                        <img src={ticketData.qrImage} alt="QR Code" style={{ width: '100%', height: 'auto' }} />
-                        <button onClick={handleDownload} style={buttonStyle}>Download QR Code</button>
-                    </div>
-                ) : (
-                    <p>No ticket data available.</p>
-                )}
+            {/* Bank Details Modal */}
+            <Modal
+                isOpen={showBankDetails}
+                onRequestClose={() => setShowBankDetails(false)}
+                style={modalStyle}
+            >
+                <img src={qrImage} alt="QR Code" style={{ width: '100%',height:'500px' }} />
+                <button onClick={() => setShowBankDetails(false)} style={buttonStyle2}>Close</button>
             </Modal>
+
         </>
     );
 };
