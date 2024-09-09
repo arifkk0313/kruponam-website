@@ -10,6 +10,7 @@ Modal.setAppElement('#root');
 const Main = () => {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
+    const [transactionId, setTransactionId] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState(''); // State for confirm password
     const [department, setDepartment] = useState('');
@@ -38,6 +39,7 @@ const Main = () => {
         const formData = new FormData();
         formData.append('name', name);
         formData.append('phone', phone);
+        formData.append('transactionId', transactionId);
         formData.append('department', department);
         formData.append('password', password);
         formData.append('year', year);
@@ -57,6 +59,7 @@ const Main = () => {
                 setPhone('');
                 setDepartment('');
                 setConfirmPassword('');
+                setTransactionId('');
                 setYear('');
                 setPassword('');
                 setProofImage(null);
@@ -280,6 +283,19 @@ const Main = () => {
                         />
                     </div>
                     <div>
+                        <label htmlFor="text" style={labelStyle}>Transaction ID</label>
+                        <input
+                            type="text"
+                            id="transactionId"
+                            value={transactionId}
+                            onChange={(e) => setTransactionId(e.target.value)}
+                            required
+                            style={inputStyle}
+                            onFocus={(e) => e.target.style.transform = 'scale(1.05)'}
+                            onBlur={(e) => e.target.style.transform = 'scale(1)'}
+                        />
+                    </div>
+                    <div>
                         <label htmlFor="password" style={labelStyle}>Password</label>
                         <input
                             type={showPassword ? "text" : "password"}
@@ -339,8 +355,7 @@ const Main = () => {
                             <option value="">Select Year</option>
                             <option value="First Year">First Year</option>
                             <option value="Second Year">Second Year</option>
-                            <option value="Third Year">Third Year</option>
-                            {/* Add more years as needed */}
+                            <option value="Third Year">Third Year</option>                            
                         </select>
                     </div>
                     <div>
