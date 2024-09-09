@@ -313,7 +313,9 @@ const Main = () => {
                 <h2>Your Ticket</h2>
                 {ticketData && (
                     <>
-                        <p>Ticket Number: {ticketData.ticketNumber}</p>
+                        <p>Booking ID: {ticketData.bookingId}</p>
+                        <p>Name: {ticketData.name}</p>
+                        <p>Phone: {ticketData.phone}</p>
                         <p>QR Code:</p>
                         <img src={ticketData.qrImage} alt="QR Code" style={{ width: '100%' }} />
                         <button onClick={handleDownload} style={buttonStyle2}>Download QR Code</button>
