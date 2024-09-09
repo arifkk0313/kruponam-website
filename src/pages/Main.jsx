@@ -36,7 +36,7 @@ const Main = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:3019/api/v2/kruponam/payment-request', {
+            const response = await fetch('https://arrif-api.moshimoshi.cloud//api/v2/kruponam/payment-request', {
                 method: 'POST',
                 body: formData,
             });
@@ -71,7 +71,7 @@ const Main = () => {
 
     const handleViewTicket = async () => {
         try {
-            const response = await fetch(`http://localhost:3019/api/v2/kruponam/ticket?mobile=${mobileNumber}`);
+            const response = await fetch(`https://arrif-api.moshimoshi.cloud//api/v2/kruponam/ticket?mobile=${mobileNumber}`);
             if (response.ok) {
                 const data = await response.json();
                 setTicketData(data?.ticket);
