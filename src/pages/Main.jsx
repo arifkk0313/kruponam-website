@@ -29,13 +29,39 @@ const Main = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');        
+        setError('');
 
+        // Validation checks
+        if (!name.trim()) {
+            setError('Name is required.');
+            return;
+        }
+        if (!phone.trim() || !/^\d{10}$/.test(phone)) {
+            setError('A valid 10-digit phone number is required.');
+            return;
+        }
+        if (!transactionId.trim()) {
+            setError('Transaction ID is required.');
+            return;
+        }
+        if (!department.trim()) {
+            setError('Department is required.');
+            return;
+        }
+        if (!year.trim() ) {
+            setError('A valid year is required.');
+            return;
+        }
+        if (!password) {
+            setError('Password is required.');
+            return;
+        }
         if (password !== confirmPassword) {
             setError('Passwords do not match.');
             return;
         }
 
+        // Prepare the form data
         const formData = new FormData();
         formData.append('name', name);
         formData.append('phone', phone);
@@ -75,6 +101,7 @@ const Main = () => {
             setError('An error occurred. Please try again later.');
         }
     };
+
 
     const handleImageChange = (e) => {
         if (e.target.files[0]) {
