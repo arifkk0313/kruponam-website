@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -6,6 +6,7 @@ import html2canvas from 'html2canvas';
 
 import qrImage from '../assets/qr-image.jpeg'; // Adjust the path based on where you place the image
 import kruponam from '../assets/kr.png'; // Adjust the path based on where you place the image
+import axios from "axios";
 
 // Ensure the root element for the modal is defined
 Modal.setAppElement('#root');
@@ -22,6 +23,7 @@ const Main = () => {
     const [year, setYear] = useState('');
     const [proofImage, setProofImage] = useState(null);
     const [error, setError] = useState('');
+    const [qrImageUrl, setQrImageUrl] = useState('');
     const [showTicket, setShowTicket] = useState(false);
     const [mobileNumber, setMobileNumber] = useState('');
     const [passwordforModal, setPasswordForModal] = useState('');
@@ -30,6 +32,23 @@ const Main = () => {
     const [showBankDetails, setShowBankDetails] = useState(false); // New state for bank details modal
     const [showTermsModal, setShowTermsModal] = useState(false); // State for showing Terms and Conditions modal
 
+
+    const fetchQrImage = async () => {
+        try {
+            const response = await axios.get('https://arrif-api.moshimoshi.cloud/api/v2/kruponam/bank-qr'); // Replace with your API endpoint
+            // Assuming the response data contains a field 'qrImage' with the URL
+            const qrImage = response.data.data.image;
+            setQrImageUrl(qrImage);
+        } catch (error) {
+            console.error('Error fetching QR image:', error);
+        }
+    };
+
+    // Fetch QR image when the component mounts
+    useEffect(() => {
+        fetchQrImage();
+    }, []);
+    
     const FIXED_QUANTITY = 1;
 
     const handleSubmit = async (e) => {
@@ -520,7 +539,7 @@ const Main = () => {
                 onRequestClose={() => setShowBankDetails(false)}
                 style={modalStyle}
             >
-                <img src={qrImage} alt="QR Code" style={{ width: '100%', height: '500px' }} />
+                <img src={qrImageUrl} alt="QR Code" style={{ width: '100%', height: '500px' }} />
                 <p style={{textAlign:'center'}}>OR</p>
                 <p style={{ textAlign: 'center',fontWeight:'bold' }}>Gpay : 8590951584</p>
                 <button onClick={() => setShowBankDetails(false)} style={buttonStyle2}>Close</button>
